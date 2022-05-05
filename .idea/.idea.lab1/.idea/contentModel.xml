@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\User\AppData\Local\JetBrains\Rider2020.3\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\User\AppData\Local\JetBrains\Rider2020.3\resharper-host\Local\Transient\Rider\v203\SolutionCaches\_lab1.-1270845951.00" t="ExcludeRecursive" />
+    <e p="C:\Users\User\AppData\Roaming\JetBrains\Rider2020.3\consoles\db" t="IncludeRecursive" />
+    <e p="C:\Users\User\AppData\Roaming\JetBrains\Rider2020.3\extensions" t="IncludeRecursive" />
+    <e p="D:\Универ\5 семестр (3 семестр ускореный)\NoSQL\lab1\lab1" t="IncludeFlat">
+      <e p="lab1" t="IncludeRecursive">
+        <e p="appsettings.Development.json" t="Include" />
+        <e p="appsettings.json" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Controllers" t="Include">
+          <e p="AccountController.cs" t="Include" />
+          <e p="HomeController.cs" t="Include" />
+          <e p="ManageController.cs" t="Include" />
+          <e p="ReservingController.cs" t="Include" />
+        </e>
+        <e p="DAO" t="Include">
+          <e p="DAOFactory.cs" t="Include" />
+          <e p="IMyDAO.cs" t="Include" />
+          <e p="MongoDAO.cs" t="Include" />
+          <e p="MySQLDAO.cs" t="Include" />
+          <e p="TypeDatabases.cs" t="Include" />
+        </e>
+        <e p="lab1.csproj" t="IncludeRecursive" />
+        <e p="Models" t="Include">
+          <e p="Booking.cs" t="Include" />
+          <e p="Calendar.cs" t="Include" />
+          <e p="CreateBookingModel.cs" t="Include" />
+          <e p="Hall.cs" t="Include" />
+          <e p="LoginModel.cs" t="Include" />
+          <e p="RegisterModel.cs" t="Include" />
+          <e p="User.cs" t="Include" />
+        </e>
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="net5.0" t="Include">
+              <e p="lab1.AssemblyInfo.cs" t="Include" />
+              <e p="lab1.RazorAssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Pages" t="Include">
+          <e p="Booking" t="Include">
+            <e p="CreateBooking.cshtml" t="Include" />
+          </e>
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="Properties" t="Include">
+          <e p="launchSettings.json" t="Include" />
+        </e>
+        <e p="Startup.cs" t="Include" />
+        <e p="Views" t="Include">
+          <e p="_ViewImports.cshtml" t="Include" />
+          <e p="_ViewStart.cshtml" t="Include" />
+          <e p="Account" t="Include">
+            <e p="Login.cshtml" t="Include" />
+            <e p="Registration.cshtml" t="Include" />
+          </e>
+          <e p="Home" t="Include">
+            <e p="Catalog.cshtml" t="Include" />
+            <e p="Index.cshtml" t="Include" />
+          </e>
+          <e p="Manage" t="Include">
+            <e p="Aggregation.cshtml" t="Include" />
+            <e p="AggregationResult.cshtml" t="Include" />
+            <e p="GroupBooking.cshtml" t="Include" />
+            <e p="MatchAndGroupBookingsHall.cshtml" t="Include" />
+            <e p="MatchAndProjectBooking.cshtml" t="Include" />
+            <e p="MatchHall.cshtml" t="Include" />
+            <e p="MatchUser.cshtml" t="Include" />
+            <e p="Replication.cshtml" t="Include" />
+            <e p="ReplicationResult.cshtml" t="Include" />
+            <e p="UserAdministrationPanel.cshtml" t="Include" />
+          </e>
+          <e p="Reserving" t="Include">
+            <e p="CreateBooking.cshtml" t="Include" />
+            <e p="GetFreedomHallTime.cshtml" t="Include" />
+          </e>
+          <e p="Shared" t="Include">
+            <e p="_Layout.cshtml" t="Include" />
+          </e>
+        </e>
+        <e p="wwwroot" t="Include">
+          <e p="CSS" t="Include">
+            <e p="accordionStyle.css" t="Include" />
+            <e p="main.css" t="Include" />
+          </e>
+          <e p="JS" t="Include">
+            <e p="Ajax_for_db_migrate.js" t="Include" />
+            <e p="connection_ajax.js" t="Include" />
+          </e>
+        </e>
+      </e>
+      <e p="lab1.sln" t="IncludeFlat" />
+      <e p="packages" t="ExcludeRecursive" />
+    </e>
+  </component>
+</project>
