@@ -28,7 +28,7 @@ $(document).on('change', '#SelectServices input[type=checkbox]', function () {
     else {
         infoTotalCost.textContent = Number(infoTotalCost.textContent) - Number(cost);
     }
-
+    
 });
 
 $(document).on('change', 'input[type=date],.time-select', function () {
