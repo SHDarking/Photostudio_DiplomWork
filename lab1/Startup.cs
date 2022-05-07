@@ -30,7 +30,7 @@ namespace lab1
                 .AddCookie(options => //CookieAuthenticationOptions
                 {
                     options.LoginPath = new PathString("/Account/Login");
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                    options.ExpireTimeSpan = TimeSpan.MaxValue;
                     options.Cookie.Name = ".Photostudio.Cookies";
                 });
             services.AddControllersWithViews(mvcOptions => { mvcOptions.EnableEndpointRouting = false; });
