@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Net.Http;
 
 namespace lab1.Controllers
 {
@@ -38,29 +37,58 @@ namespace lab1.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBooking(CreateBookingModel model)
         {
-            Order order = new Order();
-            string userEmail = User.FindFirst(x => x.Type == ClaimTypes.Email).Value;
-            
-            order.FkRenter = db.Users.FirstOrDefault(u => u.Email == userEmail).IdUser;
-            order.FkHall = db.Halls.FirstOrDefault(h => h.IdHall == uint.Parse(model.HallSelect)).IdHall;
-            order.StartHallReserving = model.GetStartHallReserving();
-            order.EndHallReserving = model.GetEndHallReserving();
-            order.CreatingDate = model.CreatingDate;
-            order.FkStatus = 1;
-            order.OrderedServices = new List<OrderedService>();
-            for (int i = 0; i < model.SelectedServices.Count; i++)
+            try
             {
-                order.OrderedServices
-                    .Add(new OrderedService() { FkOrder = order.IdOrder, FkServices = model.SelectedServices[i] });
+                // creating new order from view model
+                Order order = new Order();
+                string userEmail = User.FindFirst(x => x.Type == ClaimTypes.Email).Value;
+
+                order.FkRenter = db.Users.FirstOrDefault(u => u.Email == userEmail).IdUser;
+                order.FkHall = db.Halls.FirstOrDefault(h => h.IdHall == uint.Parse(model.HallSelect)).IdHall;
+                order.StartHallReserving = model.GetStartHallReserving();
+                order.EndHallReserving = model.GetEndHallReserving();
+                order.CreatingDate = model.CreatingDate;
+                order.FkStatus = 1;
+                order.OrderedServices = new List<OrderedService>();
+                for (int i = 0; i < model.SelectedServices.Count; i++)
+                {
+                    order.OrderedServices
+                        .Add(new OrderedService() { FkOrder = order.IdOrder, FkServices = model.SelectedServices[i] });
+                }
+                order.OrderedEquipments = new List<OrderedEquipment>();
+                for (int i = 0; i < model.SelectedEquipments.Count; i++)
+                {
+                    order.OrderedEquipments
+                        .Add(new OrderedEquipment() { FkOrder = order.IdOrder, FkEquipment = model.SelectedEquipments[i] });
+                }
+
+                // calculation total cost from order data
+
+                order.TotalCost = 0;
+                uint rentDuration = (uint)(order.EndHallReserving - order.StartHallReserving).TotalHours;
+                // calculation ordered services cost in order
+                foreach (var item in order.OrderedServices)
+                {
+                    order.TotalCost += db.Services.Find(item.FkServices).Price;
+                }
+
+                // calculation ordered hall cost in order
+                order.TotalCost += db.Halls.Find(order.FkHall).Price * rentDuration;
+
+                // calculation ordered equipments cost in order
+                foreach (var item in order.OrderedEquipments)
+                {
+                    order.TotalCost += (uint)db.Equipment.Find(item.FkEquipment).Price * rentDuration;
+                }
+
+                // writing new order into database
+                db.Orders.Add(order);
+                await db.SaveChangesAsync();
             }
-            order.OrderedEquipments = new List<OrderedEquipment>();
-            for (int i = 0; i < model.SelectedEquipments.Count; i++)
+            catch (Exception)
             {
-                order.OrderedEquipments
-                    .Add(new OrderedEquipment() { FkOrder = order.IdOrder, FkEquipment = model.SelectedEquipments[i] });
+                return View(model);
             }
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
 
             return RedirectToAction("UserAdministrationPanel", "Manage");           
             
