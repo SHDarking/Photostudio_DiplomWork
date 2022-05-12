@@ -47,6 +47,10 @@ namespace lab1.Controllers
                 order.FkHall = db.Halls.FirstOrDefault(h => h.IdHall == uint.Parse(model.HallSelect)).IdHall;
                 order.StartHallReserving = model.GetStartHallReserving();
                 order.EndHallReserving = model.GetEndHallReserving();
+                if (order.StartHallReserving >= order.EndHallReserving)
+                {
+                    throw new ArgumentException("start Date & Time hall reserving must not equal end Date & Time hall reserving ");
+                }
                 order.CreatingDate = model.CreatingDate;
                 order.FkStatus = 1;
                 order.OrderedServices = new List<OrderedService>();
@@ -86,8 +90,9 @@ namespace lab1.Controllers
                 db.Orders.Add(order);
                 await db.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return View(model);
             }
 
