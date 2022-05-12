@@ -80,7 +80,8 @@ namespace lab1.Controllers
                 {
                     order.TotalCost += (uint)db.Equipment.Find(item.FkEquipment).Price * rentDuration;
                 }
-
+                if (order.TotalCost != model.TotalCost)
+                    throw new ArgumentException("Input data of total cost dont equal with calc cost");
                 // writing new order into database
                 db.Orders.Add(order);
                 await db.SaveChangesAsync();
