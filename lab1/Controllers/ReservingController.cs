@@ -7,7 +7,6 @@ using lab1.Models;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace lab1.Controllers
 {
@@ -24,14 +23,13 @@ namespace lab1.Controllers
         public IActionResult CreateBooking()
         {
             List<Hall> list = db.Halls.Include(h => h.HallEquipments).ToList();
-            SelectList hallList = new SelectList(list, "IdHall", "Name");
+                        
             var model = new CreateBookingModel();
             model.Halls = list;
             model.Services = db.Services.ToList();
             model.EquipmentCategories = db.EquipmentCategories.ToList();
             model.Equipments = db.Equipment.Include(e => e.FkCategoryNavigation).ToList();
 
-            ViewBag.Hall = hallList;
             return View(model);
         }
         [HttpPost]
@@ -47,23 +45,41 @@ namespace lab1.Controllers
                 order.FkHall = db.Halls.FirstOrDefault(h => h.IdHall == uint.Parse(model.HallSelect)).IdHall;
                 order.StartHallReserving = model.GetStartHallReserving();
                 order.EndHallReserving = model.GetEndHallReserving();
-                if (order.StartHallReserving >= order.EndHallReserving)
+                
+
+                if (
+                    order.StartHallReserving >= order.EndHallReserving &&
+                    order.StartHallReserving <= DateTime.Now &&
+                    !IsFreeHall(order.StartHallReserving, order.EndHallReserving)
+                    )
                 {
                     throw new ArgumentException("start Date & Time hall reserving must not equal end Date & Time hall reserving ");
                 }
                 order.CreatingDate = model.CreatingDate;
                 order.FkStatus = 1;
+                
                 order.OrderedServices = new List<OrderedService>();
                 for (int i = 0; i < model.SelectedServices.Count; i++)
                 {
                     order.OrderedServices
                         .Add(new OrderedService() { FkOrder = order.IdOrder, FkServices = model.SelectedServices[i] });
                 }
+                
                 order.OrderedEquipments = new List<OrderedEquipment>();
+                int modifier = 0;
                 for (int i = 0; i < model.SelectedEquipments.Count; i++)
                 {
-                    order.OrderedEquipments
-                        .Add(new OrderedEquipment() { FkOrder = order.IdOrder, FkEquipment = model.SelectedEquipments[i] });
+                    for (int j = modifier; j < model.CountEquipments.Count; j++)
+                    {
+                        if (model.CountEquipments[j] != 0)
+                        {
+                            order.OrderedEquipments
+                                .Add(new OrderedEquipment() { FkOrder = order.IdOrder, FkEquipment = model.SelectedEquipments[i], Amount = model.CountEquipments[j] });
+                            modifier = j + 1;
+                            break;
+                        }
+                    }
+                    
                 }
 
                 // calculation total cost from order data
@@ -82,7 +98,7 @@ namespace lab1.Controllers
                 // calculation ordered equipments cost in order
                 foreach (var item in order.OrderedEquipments)
                 {
-                    order.TotalCost += (uint)db.Equipment.Find(item.FkEquipment).Price * rentDuration;
+                    order.TotalCost += (uint)db.Equipment.Find(item.FkEquipment).Price * rentDuration * item.Amount;
                 }
                 if (order.TotalCost != model.TotalCost)
                     throw new ArgumentException("Input data of total cost dont equal with calc cost");
@@ -93,7 +109,7 @@ namespace lab1.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return View(model);
+                return RedirectToAction("CreateBooking","Reserving"); // temporary solution
             }
 
             return RedirectToAction("UserAdministrationPanel", "Manage");           
@@ -154,6 +170,16 @@ namespace lab1.Controllers
                 startWeek = DateTime.MinValue;
                 endWeek = DateTime.MinValue;
             }
+        }
+
+        private bool IsFreeHall(DateTime startRent, DateTime endRent)
+        {
+            int count = db.Orders.Where(o => startRent < o.EndHallReserving && endRent > o.StartHallReserving).Count();
+            if (count > 0)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

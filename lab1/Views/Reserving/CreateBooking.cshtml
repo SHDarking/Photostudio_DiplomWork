@@ -17,7 +17,12 @@
 
             <div class="form-group m-auto mb-2">
                 <label class="mb-2">Выберете зал:</label>
-                @Html.DropDownList("HallSelect", ViewBag.Hall as SelectList, new { @class = "form-select mb-2" })
+                <select id="HallSelect" class="form-select mb-2" name="HallSelect">
+                    @foreach (var item in Model.Halls)
+                    {
+                        <option value="@item.IdHall">@item.Name</option>
+                    }
+                </select>
                 <select class="visually-hidden" id="hallInfo">
                     @foreach (var item in Model.Halls)
                     {

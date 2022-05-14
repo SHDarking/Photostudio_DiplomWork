@@ -59,19 +59,29 @@ function ajaxQuery(action, callback, button) {
 }
 ;
 // total cost calculation on web-page
-var selectEquipemts = document.querySelectorAll(".SelectEquipments input[type=checkbox]");
+var selectEquipments = document.querySelectorAll(".SelectEquipments input[type=checkbox]");
 var selectServices = document.querySelectorAll("#SelectServices input[type=checkbox]");
 var selectHallOrDateTime = document.querySelectorAll("input[type=date],.time-select,#HallSelect");
-selectEquipemts.forEach(function (element) { return element.addEventListener('change', calculateEquipmentCost); });
+selectEquipments.forEach(function (element) { return element.addEventListener('change', calculateEquipmentCost); });
+selectEquipments.forEach(function (element) { return onLoadCounterEvents(element); });
 selectServices.forEach(function (element) { return element.addEventListener('change', calculateServicesCost); });
 selectHallOrDateTime.forEach(function (element) { return element.addEventListener('change', updateTotalCost); });
+function onLoadCounterEvents(element) {
+    if (element.checked) {
+        element.parentNode.parentNode.querySelector(".counterMinus")
+            .addEventListener('click', downgradeCounterValue);
+        element.parentNode.parentNode.querySelector(".counterPlus")
+            .addEventListener('click', upgradeCounterValue);
+    }
+}
+;
 function downgradeCounterValue() {
     var durationRent = getDurationRent();
     var cost = this.parentNode.parentNode.querySelector(".form-check .visually-hidden").value;
     var infoTotalCost = document.getElementById("totalCostValue");
-    var totalCostValue = document.querySelector("input[name='TotalCost']");
+    var totalCostValue = document.querySelector("input[name='Form.TotalCost']");
     var checkbox = this.parentNode.parentNode.querySelector("input[type='checkbox']");
-    if (checkbox != null && checkbox.checked) {
+    if (!checkbox.hasAttribute("disabled") && checkbox.checked) {
         var equipmentValue = this.parentNode.querySelector("input");
         var equipmentValueInfo = this.parentNode.querySelector("span");
         var value = Number(equipmentValue.value);
@@ -91,9 +101,9 @@ function upgradeCounterValue() {
     var durationRent = getDurationRent();
     var cost = this.parentNode.parentNode.querySelector(".form-check .visually-hidden").value;
     var infoTotalCost = document.getElementById("totalCostValue");
-    var totalCostValue = document.querySelector("input[name='TotalCost']");
+    var totalCostValue = document.querySelector("input[name='Form.TotalCost']");
     var checkbox = this.parentNode.parentNode.querySelector("input[type='checkbox']");
-    if (checkbox != null && checkbox.checked) {
+    if (!checkbox.hasAttribute("disabled") && checkbox.checked) {
         var equipmentValue = this.parentNode.querySelector("input");
         var equipmentValueInfo = this.parentNode.querySelector("span");
         var value = Number(equipmentValue.value);
@@ -112,8 +122,8 @@ function calculateEquipmentCost() {
     var rentDuration = getDurationRent();
     var cost = this.parentNode.querySelector("input.visually-hidden").value;
     var infoTotalCost = document.getElementById("totalCostValue");
-    var totalCostValue = document.querySelector("input[name='TotalCost']");
-    var equipmentValue = this.parentNode.parentNode.querySelector("input[name='CountEquipments']");
+    var totalCostValue = document.querySelector("input[name='Form.TotalCost']");
+    var equipmentValue = this.parentNode.parentNode.querySelector("input[name='Form.CountEquipments']");
     var equipmentValueInfo = this.parentNode.parentNode.querySelector("span.counterInfo");
     var value = Number(equipmentValue.value);
     var totalCost = 0;
@@ -147,7 +157,7 @@ function calculateServicesCost() {
     var selectBox = this.parentNode.querySelector("input.visually-hidden");
     var cost = selectBox.value;
     var infoTotalCost = document.getElementById("totalCostValue");
-    var totalCostValue = document.querySelector("input[name='TotalCost']");
+    var totalCostValue = document.querySelector("input[name='Form.TotalCost']");
     var totalCost = 0;
     if (this.checked) {
         totalCost = Number(cost) + Number(totalCostValue.value);
@@ -164,7 +174,7 @@ function calculateServicesCost() {
 function updateTotalCost() {
     var totalCost = calculateTotalCost();
     document.getElementById("totalCostValue").textContent = totalCost.toString();
-    document.querySelector("input[name='TotalCost']").value = totalCost.toString();
+    document.querySelector("input[name='Form.TotalCost']").value = totalCost.toString();
 }
 ;
 function getDurationRent() {
@@ -193,15 +203,35 @@ function calculateTotalCost() {
     var checkboxCollection = document.querySelectorAll("input[type='checkbox']");
     for (var i = 0; i < checkboxCollection.length; i++) {
         var cost = Number(checkboxCollection[i].parentNode.querySelector("input").value);
-        if (checkboxCollection[i].checked && checkboxCollection[i].name === "SelectedServices") {
+        if (checkboxCollection[i].checked && checkboxCollection[i].name === "Form.SelectedServices") {
             totalCost += cost;
         }
-        else if (checkboxCollection[i].checked && checkboxCollection[i].name === "SelectedEquipments") {
-            var countCurrentEquipment = checkboxCollection[i].parentNode.parentNode.querySelector("input[name='CountEquipments']").value;
+        else if (checkboxCollection[i].checked && checkboxCollection[i].name === "Form.SelectedEquipments") {
+            var countCurrentEquipment = checkboxCollection[i].parentNode.parentNode.querySelector("input[name='Form.CountEquipments']").value;
             totalCost += cost * rentDuration * Number(countCurrentEquipment);
         }
     }
     return totalCost;
 }
 ;
+// adminpanel settings
+var manageControl = document.querySelector("input[name='manageControlCheck']");
+if (manageControl != null) {
+    manageControl.addEventListener('change', function () {
+        if (manageControl.checked) {
+            selectEquipments.forEach(function (element) { return element.removeAttribute("disabled"); });
+            selectServices.forEach(function (element) { return element.removeAttribute("disabled"); });
+            selectHallOrDateTime.forEach(function (element) { return element.removeAttribute("disabled"); });
+            document.querySelector("input[name='Form.TotalCost']").removeAttribute("disabled");
+            document.querySelectorAll("input[name='Form.CountEquipments']").forEach(function (element) { return element.removeAttribute("disabled"); });
+        }
+        else {
+            selectEquipments.forEach(function (element) { return element.setAttribute("disabled", ""); });
+            selectServices.forEach(function (element) { return element.setAttribute("disabled", ""); });
+            selectHallOrDateTime.forEach(function (element) { return element.setAttribute("disabled", ""); });
+            document.querySelector("input[name='Form.TotalCost']").setAttribute("disabled", "");
+            document.querySelectorAll("input[name='Form.CountEquipments']").forEach(function (element) { return element.setAttribute("disabled", ""); });
+        }
+    });
+}
 //# sourceMappingURL=OrderScript.js.map

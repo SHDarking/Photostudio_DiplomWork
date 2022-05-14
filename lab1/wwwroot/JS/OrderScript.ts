@@ -68,27 +68,36 @@ function ajaxQuery(action: number, callback: Function = null, button: HTMLDivEle
     xhr.send();
 };
 
-
 // total cost calculation on web-page
 
-const selectEquipemts = document.querySelectorAll(".SelectEquipments input[type=checkbox]");
+const selectEquipments = document.querySelectorAll(".SelectEquipments input[type=checkbox]");
 const selectServices = document.querySelectorAll("#SelectServices input[type=checkbox]");
 const selectHallOrDateTime = document.querySelectorAll("input[type=date],.time-select,#HallSelect");
 
-selectEquipemts.forEach(element => element.addEventListener('change', calculateEquipmentCost));
+selectEquipments.forEach(element => element.addEventListener('change', calculateEquipmentCost));
+selectEquipments.forEach(element => onLoadCounterEvents(element as HTMLInputElement));
 selectServices.forEach(element => element.addEventListener('change', calculateServicesCost));
 selectHallOrDateTime.forEach(element => element.addEventListener('change', updateTotalCost));
+
+function onLoadCounterEvents(element: HTMLInputElement) {
+    if (element.checked) {
+        element.parentNode.parentNode.querySelector(".counterMinus")
+            .addEventListener('click', downgradeCounterValue);
+        element.parentNode.parentNode.querySelector(".counterPlus")
+            .addEventListener('click', upgradeCounterValue);
+    }
+};
 
 function downgradeCounterValue() {
     let durationRent = getDurationRent();
     let cost: string = (this.parentNode.parentNode.querySelector(".form-check .visually-hidden") as HTMLInputElement).value;
 
     let infoTotalCost: HTMLSpanElement = document.getElementById("totalCostValue") as HTMLSpanElement | null;
-    let totalCostValue: HTMLInputElement = document.querySelector("input[name='TotalCost']") as HTMLInputElement | null;
+    let totalCostValue: HTMLInputElement = document.querySelector("input[name='Form.TotalCost']") as HTMLInputElement | null;
 
 
     let checkbox: HTMLInputElement = this.parentNode.parentNode.querySelector("input[type='checkbox']") as HTMLInputElement | null;
-    if (checkbox != null && checkbox.checked) {
+    if (!checkbox.hasAttribute("disabled") && checkbox.checked) {
         let equipmentValue: HTMLInputElement = this.parentNode.querySelector("input") as HTMLInputElement | null;
         let equipmentValueInfo: HTMLSpanElement = this.parentNode.querySelector("span") as HTMLSpanElement | null;
 
@@ -112,12 +121,12 @@ function upgradeCounterValue() {
     let cost: string = (this.parentNode.parentNode.querySelector(".form-check .visually-hidden") as HTMLInputElement).value;
 
     let infoTotalCost: HTMLSpanElement = document.getElementById("totalCostValue") as HTMLSpanElement | null;
-    let totalCostValue: HTMLInputElement = document.querySelector("input[name='TotalCost']") as HTMLInputElement | null;
+    let totalCostValue: HTMLInputElement = document.querySelector("input[name='Form.TotalCost']") as HTMLInputElement | null;
 
 
     let checkbox: HTMLInputElement = this.parentNode.parentNode.querySelector("input[type='checkbox']") as HTMLInputElement | null;
 
-    if (checkbox != null && checkbox.checked) {
+    if (!checkbox.hasAttribute("disabled") && checkbox.checked) {
         let equipmentValue: HTMLInputElement = this.parentNode.querySelector("input") as HTMLInputElement | null;
         let equipmentValueInfo: HTMLSpanElement = this.parentNode.querySelector("span") as HTMLSpanElement | null;
 
@@ -143,11 +152,11 @@ function calculateEquipmentCost() {
     let cost: string = (this.parentNode.querySelector("input.visually-hidden") as HTMLInputElement | null).value;
 
     let infoTotalCost: HTMLSpanElement = document.getElementById("totalCostValue") as HTMLSpanElement | null;
-    let totalCostValue: HTMLInputElement = document.querySelector("input[name='TotalCost']") as HTMLInputElement | null;
+    let totalCostValue: HTMLInputElement = document.querySelector("input[name='Form.TotalCost']") as HTMLInputElement | null;
 
     
 
-    let equipmentValue: HTMLInputElement = this.parentNode.parentNode.querySelector("input[name='CountEquipments']") as HTMLInputElement | null;
+    let equipmentValue: HTMLInputElement = this.parentNode.parentNode.querySelector("input[name='Form.CountEquipments']") as HTMLInputElement | null;
     let equipmentValueInfo: HTMLSpanElement = this.parentNode.parentNode.querySelector("span.counterInfo") as HTMLSpanElement | null;
 
     let value = Number(equipmentValue.value);
@@ -188,7 +197,7 @@ function calculateServicesCost() {
     let selectBox = this.parentNode.querySelector("input.visually-hidden");
     let cost = selectBox.value;
     let infoTotalCost: HTMLSpanElement = document.getElementById("totalCostValue") as HTMLSpanElement | null;
-    let totalCostValue = document.querySelector("input[name='TotalCost']") as HTMLInputElement | null;
+    let totalCostValue = document.querySelector("input[name='Form.TotalCost']") as HTMLInputElement | null;
     let totalCost = 0;
 
     if (this.checked) {
@@ -209,7 +218,7 @@ function calculateServicesCost() {
 function updateTotalCost() {
     let totalCost = calculateTotalCost();
     document.getElementById("totalCostValue").textContent = totalCost.toString();
-    (document.querySelector("input[name='TotalCost']") as HTMLInputElement | null).value  = totalCost.toString();
+    (document.querySelector("input[name='Form.TotalCost']") as HTMLInputElement | null).value  = totalCost.toString();
 };
 
 function getDurationRent() {
@@ -246,11 +255,11 @@ function calculateTotalCost() {
 
     for (let i = 0; i < checkboxCollection.length; i++) {
         let cost = Number(checkboxCollection[i].parentNode.querySelector("input").value);
-        if (checkboxCollection[i].checked && checkboxCollection[i].name === "SelectedServices") {
+        if (checkboxCollection[i].checked && checkboxCollection[i].name === "Form.SelectedServices") {
             totalCost += cost;
         }
-        else if (checkboxCollection[i].checked && checkboxCollection[i].name === "SelectedEquipments") {
-            let countCurrentEquipment = (checkboxCollection[i].parentNode.parentNode.querySelector("input[name='CountEquipments']") as HTMLInputElement | null).value;
+        else if (checkboxCollection[i].checked && checkboxCollection[i].name === "Form.SelectedEquipments") {
+            let countCurrentEquipment = (checkboxCollection[i].parentNode.parentNode.querySelector("input[name='Form.CountEquipments']") as HTMLInputElement | null).value;
             totalCost += cost * rentDuration * Number(countCurrentEquipment);
         }
     }
@@ -258,7 +267,28 @@ function calculateTotalCost() {
     return totalCost;
 };
 
+// adminpanel settings
+const manageControl: HTMLInputElement = document.querySelector("input[name='manageControlCheck']") as HTMLInputElement | null;
 
+if (manageControl != null) {
+    manageControl.addEventListener('change', function () {
+        if (manageControl.checked) {
+            selectEquipments.forEach(element => element.removeAttribute("disabled"));
+            selectServices.forEach(element => element.removeAttribute("disabled"));
+            selectHallOrDateTime.forEach(element => element.removeAttribute("disabled"));
+            document.querySelector("input[name='Form.TotalCost']").removeAttribute("disabled");
+            document.querySelectorAll("input[name='Form.CountEquipments']").forEach(element => element.removeAttribute("disabled"));
+        }
+        else {
+            selectEquipments.forEach(element => element.setAttribute("disabled",""));
+            selectServices.forEach(element => element.setAttribute("disabled",""));
+            selectHallOrDateTime.forEach(element => element.setAttribute("disabled",""));
+            document.querySelector("input[name='Form.TotalCost']").setAttribute("disabled","");
+            document.querySelectorAll("input[name='Form.CountEquipments']").forEach(element => element.setAttribute("disabled",""));
+
+        }
+    });
+}
 
 
 

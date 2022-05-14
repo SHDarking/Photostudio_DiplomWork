@@ -14,79 +14,94 @@ else
 {
     <h3 class="admin_panel_name">Панель администратора управления заказами</h3>
 }
-@if (User.FindFirst(x => x.Type == ClaimTypes.Role).Value == "User")
+<div class="container-md">
+    @if (User.FindFirst(x => x.Type == ClaimTypes.Role).Value == "User")
     {
-        <table class="account_booking">
-        <tr class="account_booking_item">
-            <td><span>Номер <br> заказа</span></td>
-            <td><span>Дата <br> создания</span></td>
-            <td><span>Название <br> зала</span></td>
-            <td><span>Дата и время <br> начала оренды</span></td>
-            <td><span>Дата и время <br> окончания оренды</span></td>
-            <td><span>Цена <br> заказа</span></td>
-            <td><span>Статус</span></td>
-        </tr>
-        @foreach (var item in Model)
-        {
-            <tr class="account_booking_item">
-                <td><span>@item.IdOrder</span></td>
-                <td><span>@item.CreatingDate</span></td>
-                <td><span>@item.FkHallNavigation.Name</span></td>
-                <td><span>@item.StartHallReserving</span></td>
-                <td><span>@item.EndHallReserving</span></td>
-                <td><span>@item.TotalCost</span></td>
-                <td><span>@item.FkStatusNavigation.Name</span></td>
-            </tr>
-        }
-        </table> 
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col"><span>Номер <br> заказа</span></th>
+                    <th scope="col"><span>Дата <br> создания</span></th>
+                    <th scope="col"><span>Название <br> зала</span></th>
+                    <th scope="col"><span>Дата и время <br> начала оренды</span></th>
+                    <th scope="col"><span>Дата и время <br> окончания оренды</span></th>
+                    <th scope="col"><span>Цена <br> заказа</span></th>
+                    <th scope="col"><span>Статус</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="">
+                        <th scope="row"><span>@item.IdOrder</span></th>
+                        <td><span>@item.CreatingDate</span></td>
+                        <td><span>@item.FkHallNavigation.Name</span></td>
+                        <td><span>@item.StartHallReserving</span></td>
+                        <td><span>@item.EndHallReserving</span></td>
+                        <td><span>@item.TotalCost</span></td>
+                        <td><span>@item.FkStatusNavigation.Name</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
     else
-        {
-        <table class="account_booking admin-check">
-        <tr class="account_booking_item ">
-            <td><span>Номер <br> заказа</span></td>
-            <td><span>Имя <br> клиента</span></td>
-            <td><span>Фамилия <br> клиента</span></td>
-            <td><span>Номер <br> телефона</span></td>
-            <td><span>Дата <br> создания</span></td>
-            <td><span>Название <br> зала</span></td>
-            <td><span>Дата и время <br> начала оренды</span></td>
-            <td><span>Дата и время <br> окончания оренды</span></td>
-            <td><span>Цена <br> заказа</span></td>
-            <td><span>Статус</span></td>
-            <td><span>Управление</span></td>
-        </tr>
-        @foreach (var booking in Model)
-        {
-            <tr class="account_booking_item">
-                <td><span>@booking.IdOrder</span></td>
-                <td><span>@booking.FkRenterNavigation.Name</span></td>
-                <td><span>@booking.FkRenterNavigation.Surname</span></td>
-                <td><span>@booking.FkRenterNavigation.PhoneNumber</span></td>
-                <td><span>@booking.CreatingDate</span></td>
-                <td><span>@booking.FkHallNavigation.Name</span></td>
-                <td><span>@booking.StartHallReserving</span></td>
-                <td><span>@booking.EndHallReserving</span></td>
-                <td><span>@booking.TotalCost</span></td>
-                <td><span>@booking.FkStatusNavigation.Name</span></td>
-                <td class="control_of_booking">
-                    <form method="post">
-                        <input type="number" value="@booking.IdOrder" name="idBooking">
-                        @if (booking.FkStatusNavigation.Name != "Подтвержден")
-                        {
-                            <button asp-action="UpdateBookingStatus" asp-controller="Manage" class="update_button">Подтвердить</button>
-                            <button asp-controller="Manage" asp-action="DeleteBooking" class="cancel_button">Удалить</button>
-                        }
-                        else
-                        {
-                            <button asp-action="UpdateBookingStatus" asp-controller="Manage" class="update_button">Выполнен</button>
-                            <button asp-controller="Manage" asp-action="CancelBooking" class="cancel_button">Отменить</button>
-                        }
-                    </form>
-                </td>
-            </tr>
-             
-        }
-        </table> 
+    {
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr class="">
+                    <th scope="col"><span>Номер <br> заказа</span></th>
+                    <th scope="col"><span>Имя <br> клиента</span></th>
+                    <th scope="col"><span>Фамилия <br> клиента</span></th>
+                    <th scope="col"><span>Номер <br> телефона</span></th>
+                    <th scope="col"><span>Дата <br> создания</span></th>
+                    <th scope="col"><span>Цена <br> заказа</span></th>
+                    <th scope="col"><span>Статус</span></th>
+                    <th colspan="2"><span>Управление</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var booking in Model)
+                {
+                    <tr class="">
+                        <th scope="row"><span>@booking.IdOrder</span></th>
+                        <td><span>@booking.FkRenterNavigation.Name</span></td>
+                        <td><span>@booking.FkRenterNavigation.Surname</span></td>
+                        <td><span>@booking.FkRenterNavigation.PhoneNumber</span></td>
+                        <td><span>@booking.CreatingDate</span></td>
+                        <td><span>@booking.TotalCost</span></td>
+                        <td><span>@booking.FkStatusNavigation.Name</span></td>
+                        <td colspan="2">
+                            @if (booking.FkStatusNavigation.Name == "Новый")
+                            {
+                                <form method="get" class="control-form d-flex justify-content-around">
+                                    <input type="number" value="@booking.IdOrder" name="IdBooking" />
+                                    <button asp-controller="Manage" asp-action="ManageBooking" class="btn btn-outline-primary">Просмотр</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" class="control-form d-flex justify-content-around">
+                                    <input type="number" value="@booking.IdOrder" name="IdBooking" />
+                                    @if (booking.FkStatusNavigation.Name == "Ожидает оплаты")
+                                    {
+                                        <button asp-action="UpdateBookingStatus" asp-controller="Manage" class="btn btn-outline-warning">Подтвердить</button>
+                                        <button asp-controller="Manage" asp-action="DeleteBooking" class="btn btn-outline-danger">Удалить</button>
+                                    }
+                                    else
+                                    {
+                                        <button asp-action="UpdateBookingStatus" asp-controller="Manage" class="btn btn-outline-success">Выполнен</button>
+                                        <button asp-controller="Manage" asp-action="CancelBooking" class="btn btn-outline-danger">Отменить</button>
+                                    }
+                                </form>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     }
+</div>
+
 

@@ -1,0 +1,247 @@
+﻿@model ManageBookingModel
+@{
+    DateTime dateNow = DateTime.Now;
+    ViewData["Title"] = $"Просмотр заказа {Model.Order.IdOrder}";
+}
+<article class="container-fluid d-flex  justify-content-around bookingForm">
+    @* Calendar box for selected hall *@
+    <div class="container-lg calendar p-3 border border-1 border-secondary" id="calendar">
+
+    </div>
+    @* Form order *@
+    <div class="container-md px-3">
+        <form asp-action="ManageBooking" asp-controller="Manage" class="w-75 m-auto mt-4 d-flex flex-column">
+            <h4 class="m-auto mb-4">Управление заказом #@Model.Order.IdOrder</h4>
+            <input class="visually-hidden" type="number" name="IdBooking" value="@Model.Order.IdOrder"/>
+            <div class="form-check form-switch m-auto mb-2">
+                <input type="checkbox" class="form-check-input" name="manageControlCheck"/>
+                <label class="form-check-label" for="manageControlCheck">Редактировать резервацию</label>
+            </div>
+            @*Halls select box with their price*@
+
+            <div class="form-group m-auto mb-2">
+                <label class="mb-2">Выберете зал:</label>
+                <select id="HallSelect" class="form-select mb-2" name="Form.HallSelect" disabled>
+                    @foreach (var item in Model.BookingInfo.Halls)
+                    {
+                        if (Model.Order.FkHall == item.IdHall)
+                        {
+                            <option value="@item.IdHall" selected>@item.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@item.IdHall">@item.Name</option>
+                        }
+                    }
+                </select>
+                <select class="visually-hidden" id="hallInfo" disabled>
+                    @foreach (var item in Model.BookingInfo.Halls)
+                    {
+                        <option value="@item.IdHall">@item.Price</option>
+                    }
+                </select>
+            </div>
+
+            @*Services select box with their prices*@
+
+            <div class="form-group m-auto mb-2" id="SelectServices">
+                @for (int i = 0; i < Model.BookingInfo.Services.Count; i++)
+                {
+                    <div class="form-check form-switch">
+                        <input class="visually-hidden" name="hall_service_@i" value="@Model.BookingInfo.Services[i].Price" disabled />
+                        <label class="form-check-label" for="hall_service_@i">@Model.BookingInfo.Services[i].Name</label>
+                        @if (Model.Order.OrderedServices.Any(os => os.FkServices == Model.BookingInfo.Services[i].IdService))
+                        {
+                            <input class="form-check-input" type="checkbox" name="Form.SelectedServices" id="hall_service_@i" value="@Model.BookingInfo.Services[i].IdService" checked disabled />
+                        }
+                        else
+                        {
+                            <input class="form-check-input" type="checkbox" name="Form.SelectedServices" id="hall_service_@i" value="@Model.BookingInfo.Services[i].IdService" disabled />
+                        }
+                    </div>
+                }
+            </div>
+
+            @*DateTime starting rent selecting box for selected hall*@
+
+            <div class="form-group mb-3">
+                <label for="startDateHallsRent" class="mb-2">Выберите дату, время начала работы:</label>
+                <div class="input-group">
+                    <input type="date" class="form-control" id="startDateHallsRent" name="Form.StartDateReserving" min="@dateNow.ToString("yyyy-MM-dd")" value="@Model.Order.StartHallReserving.Date.ToString("yyyy-MM-dd")" required="" disabled>
+                    <select class="form-select time-select" id="startTimeHallsRent" name="Form.StartTimeReserving" required="" disabled>
+                        <option disabled>Время:</option>
+                        @for (int i = 0; i <= 23; i++)
+                        {
+                            @if (i == Model.Order.StartHallReserving.Hour)
+                            {
+                                <option value="@i" selected>@i</option>
+                            }
+                            else
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        }
+                    </select>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">:00</span>
+                    </div>
+                    <div class="invalid-feedback">
+                        Пожалуйста, укажите правильно дату и время
+                    </div>
+                </div>
+            </div>
+
+            @*DateTime ending rent selecting box for selected hall*@
+
+            <div class="form-group mb-3">
+                <label for="endDateHallsRent" class="mb-2">Выберите дату, время завершения работы:</label>
+                <div class="input-group">
+                    <input type="date" class="form-control" id="endDateHallsRent" name="Form.EndDateReserving" min="@dateNow.ToString("yyyy-MM-dd")" value="@Model.Order.EndHallReserving.Date.ToString("yyyy-MM-dd")" required="" disabled>
+                    <select class="form-select time-select" id="endTimeHallsRent" name="Form.EndTimeReserving" required="" disabled>
+                        <option disabled>Время:</option>
+                        @for (int i = 0; i <= 23; i++)
+                        {
+                            @if (i == Model.Order.EndHallReserving.Hour)
+                            {
+                                <option value="@i" selected>@i</option>
+                            }
+                            else
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        }
+                    </select>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">:00</span>
+                    </div>
+                    <div class="invalid-feedback">
+                        Пожалуйста, укажите правильно дату и время
+                    </div>
+                </div>
+            </div>
+
+            @*Tab list box for equipment*@
+
+            <div class="form-group m-auto mb-2 nav nav-tabs" id="nav-tab" role="tablist">
+                @for (int i = 0; i < Model.BookingInfo.EquipmentCategories.Count; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            <button class="nav-link active" id="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory-tab" data-bs-toggle="tab" data-bs-target="#nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" type="button" role="tab" aria-controls="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" aria-selected="true">@Model.BookingInfo.EquipmentCategories[i].Name</button>
+                            break;
+                        default:
+                            <button class="nav-link" id="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory-tab" data-bs-toggle="tab" data-bs-target="#nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" type="button" role="tab" aria-controls="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" aria-selected="false">@Model.BookingInfo.EquipmentCategories[i].Name</button>
+                            break;
+                    }
+                }
+            </div>
+
+            @*Content for tabs*@
+
+            <div class="tab-content SelectEquipments" id="nav-tabContent">
+                @for (int i = 0; i < Model.BookingInfo.EquipmentCategories.Count; i++)
+                {
+                    @if (i == 0)
+                    {
+                        <div class="tab-pane fade show active" id="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" role="tabpanel" aria-labelledby="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory-tab">
+                            @for (int j = 0; j < Model.BookingInfo.Equipments.Count; j++)
+                            {
+                                if (Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory == Model.BookingInfo.Equipments[j].FkCategoryNavigation.IdEquipmentCategory)
+                                {
+                                    <div class="d-flex justify-content-between">
+                                        <div class="form-check">
+                                            <input class="visually-hidden" name="hall_equipment_@j" value="@Model.BookingInfo.Equipments[j].Price" disabled />
+                                            @if (Model.Order.OrderedEquipments.Any(os => os.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment))
+                                            {
+                                                <input type="checkbox" class="form-check-input" name="Form.SelectedEquipments" id="equipmentCheck_@j" value="@Model.BookingInfo.Equipments[j].IdEquipment" checked disabled />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" class="form-check-input" name="Form.SelectedEquipments" id="equipmentCheck_@j" value="@Model.BookingInfo.Equipments[j].IdEquipment" disabled />
+                                            }
+                                            <label class="form-check-label" for="equipmentCheck_@j">@Model.BookingInfo.Equipments[j].Name</label>
+                                        </div>
+                                        <div class="equipmentCount">
+                                            <i class="counterAction counterMinus"></i>
+                                            @if (Model.Order.OrderedEquipments.Any(oe => oe.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment))
+                                            {
+                                                <span class="counterInfo">@Model.Order.OrderedEquipments.First(oe => oe.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment).Amount</span>
+                                                <input type="number" class="visually-hidden" name="Form.CountEquipments" value="@Model.Order.OrderedEquipments.First(oe => oe.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment).Amount" disabled />
+                                            }
+                                            else
+                                            {
+                                                <span class="counterInfo">0</span>
+                                                <input type="number" class="visually-hidden" name="Form.CountEquipments" value="0" disabled />
+                                            }
+                                            <i class="counterAction counterPlus"></i>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane fade" id="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory" role="tabpanel" aria-labelledby="nav-category-@Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory-tab">
+                            @for (int j = 0; j < Model.BookingInfo.Equipments.Count; j++)
+                            {
+                                if (Model.BookingInfo.EquipmentCategories[i].IdEquipmentCategory == Model.BookingInfo.Equipments[j].FkCategoryNavigation.IdEquipmentCategory)
+                                {
+                                    <div class="d-flex justify-content-between">
+                                        <div class="form-check">
+                                            <input class="visually-hidden" name="hall_equipment_@j" value="@Model.BookingInfo.Equipments[j].Price" />
+                                            @if (Model.Order.OrderedEquipments.Any(os => os.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment))
+                                            {
+                                                <input type="checkbox" class="form-check-input" name="Form.SelectedEquipments" id="equipmentCheck_@j" value="@Model.BookingInfo.Equipments[j].IdEquipment" checked disabled />
+                                            }
+                                            else
+                                            {
+                                                <input type="checkbox" class="form-check-input" name="Form.SelectedEquipments" id="equipmentCheck_@j" value="@Model.BookingInfo.Equipments[j].IdEquipment" disabled />
+                                            }
+                                            <label class="form-check-label" for="equipmentCheck_@j">@Model.BookingInfo.Equipments[j].Name</label>
+                                        </div>
+                                        <div class="equipmentCount">
+
+                                            <i class="counterAction counterMinus"></i>
+                                            @if (Model.Order.OrderedEquipments.Any(os => os.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment))
+                                            {
+                                                <span class="counterInfo">@Model.Order.OrderedEquipments.First(oe => oe.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment).Amount</span>
+                                                <input type="number" class="visually-hidden" name="Form.CountEquipments" value="@Model.Order.OrderedEquipments.First(oe => oe.FkEquipment == Model.BookingInfo.Equipments[j].IdEquipment).Amount" disabled />
+                                            }
+                                            else
+                                            {
+                                                <span class="counterInfo">0</span>
+                                                <input type="number" class="visually-hidden" name="Form.CountEquipments" value="0" disabled />
+                                            }
+                                            <i class="counterAction counterPlus"></i>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+            </div>
+
+            @*Total cost box*@
+
+            <div class="form-group d-flex m-auto mb-2">
+                <p>Итоговая цена: </p>
+                <p class="ms-2 totalCost"><span class="totalCostValue" id="totalCostValue">@Model.Order.TotalCost</span><span> грн</span></p>
+                <input class="visually-hidden" name="Form.TotalCost" value="@Model.Order.TotalCost" disabled/>
+            </div>
+
+            @*button for sending data on server*@
+
+            <div class="form-group d-flex justify-content-center my-3">
+                <button type="submit" class="m-auto p-2 btn btn-outline-success" asp-action="ManageBooking" asp-controller="Manage">Подтвердить заказ</button>
+                <button type="submit" class="m-auto p-2 btn btn-outline-danger" asp-action="DeleteBooking" asp-controller="Manage">Удалить заказ</button>
+            </div>
+        </form>
+    </div>
+
+</article>
+<script src="~/JS/OrderScript.js"></script>
+<script src=@("https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js") integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
